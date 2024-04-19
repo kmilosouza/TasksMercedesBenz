@@ -2,8 +2,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-import time
-from selenium.webdriver.support.ui import Select
 
 class SearchOverviewPage:
 
@@ -192,4 +190,56 @@ class SearchOverviewPage:
             for detail in details_list:
                 all_details =detail.text
             save_to_file.append(all_details.split("\n"))
-            print (save_to_file)
+                        
+            index_model_year = save_to_file[0].index("Model Year")
+            index_vin = save_to_file[0].index("VIN")
+            
+            with open("./outputs/car_details.txt", 'a') as outfile:
+                outfile.write("Model Year : {} \n".format(save_to_file[0][index_model_year+1])) 
+                outfile.write("VIN : {} \n".format(save_to_file[0][index_vin+1]))
+            
+            self.click_enquire_now()
+    
+    def click_enquire_now(self):
+        enquire_button = WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located (
+                    (By.XPATH,"//button[normalize-space()='Enquire Now']")
+                )
+            )
+        enquire_button.click()
+
+    def fill_out_contact_detail_info(self):
+        email_field = WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located (
+                    (By.XPATH,"//input[@inputmode='email']")
+                )
+            )
+        email_field.send_keys("some_email.com")
+        
+        
+        submit = WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located (
+                    (By.XPATH,"//button[normalize-space()='Proceed']")
+                )
+            )
+        action = ActionChains(self.driver)
+        action.move_to_element(submit).click().perform()    
+        
+        submit.click()
+
+    def check_error_message(self):
+        error_msg = WebDriverWait(self.driver, 20).until(
+                EC.text_to_be_present_in_element (
+                     [By.CSS_SELECTOR,"[class='dcp-error-message__error-hint']"],
+                      "An error has occurred."
+                )
+        )
+        error_list = WebDriverWait(self.driver, 20).until(
+                EC.text_to_be_present_in_element (
+                     [By.CSS_SELECTOR,"[class='dcp-error-message-error-list__item']"],
+                      "Please check the data you entered."
+                )
+        )
+        print(error_msg,error_list)
+            
+        return error_msg,error_list
