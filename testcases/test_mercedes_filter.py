@@ -34,7 +34,5 @@ class TestSearch(BaseTest):
         searchPage.get_cars_list_information()
         searchPage.fill_out_contact_detail_info()
         error_msg, error_list = searchPage.check_error_message()
-        assert (error_msg is True,
-                error_list is True
-        ), "No error message captured or missing error list."
+        assert (error_msg,error_list), "No error message captured or missing error list."
         
